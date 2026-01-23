@@ -96,6 +96,14 @@ dotnet add package Goodtocode.Mediator
 ## License
 MIT
 
+
 ## Contact
 - [GitHub Repo](https://github.com/goodtocode/aspect-httpclient)
 - [@goodtocode](https://twitter.com/goodtocode)
+
+## Version History
+
+| Version | Date       | Changes                | .NET Version |
+| ------- | ---------- | ---------------------- | ------------ |
+| 1.0.0   | 2025-01-01 | Initial release        | 9            |
+| 1.1.0   | 2026-01-22 | Version bump           | 10           |
