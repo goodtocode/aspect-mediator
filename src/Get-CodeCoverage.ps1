@@ -12,11 +12,7 @@
 Param(
     [string]$TestProjectFilter = 'Tests.*.csproj',    
     [switch]$ProdPackagesOnly = $false,    
-    [string[]]$ProductionAssemblies = @(
-        "Cannery.Insights.Core.Application",
-        "Cannery.Insights.Presentation.WebApi",
-        "Cannery.Insights.Presentation.Blazor"
-    )
+    [string[]]$ProductionAssemblies = @()
 )
 ####################################################################################
 if ($IsWindows) {Set-ExecutionPolicy Unrestricted -Scope Process -Force}
@@ -41,7 +37,7 @@ foreach ($project in $testProjects) {
     $testProjectPath = $project.FullName
     Write-Host "Running tests for project: $($testProjectPath)"
 
-    $buildOutput = Join-Path -Path $project.Directory.FullName -ChildPath "bin\Debug\net9.0\$($project.BaseName).dll"
+    $buildOutput = Join-Path -Path $project.Directory.FullName -ChildPath "bin\Debug\net10.0\$($project.BaseName).dll"
     $coverageFile = Join-Path $coverageOutputPath "coverage.cobertura.xml"
     Write-Host "Analyzing code coverage for: $buildOutput"
     coverlet $buildOutput --target "dotnet" --targetargs "test $($project.FullName) --no-build" --format cobertura --output $coverageFile
