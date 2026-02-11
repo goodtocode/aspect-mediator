@@ -80,9 +80,6 @@ public class EnrollmentController : ApiControllerBase
 - Supports CQRS by separating commands and queries
 - Enables clean, testable, and maintainable code
 
-### Why Not MediatR?
-Goodtocode.Mediator is custom-built for simplicity and performance, with no external dependencies. It is ideal for projects that require a lightweight mediator pattern implementation.
-
 ## Features
 - Simple integration with Blazor, ASP.NET Core, and .NET DI
 
