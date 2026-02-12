@@ -40,9 +40,9 @@ public class SenderTests
     private class TestDispatcher : IRequestDispatcher
     {
         public bool CommandSent { get; private set; }
-        public IRequest LastCommand { get; private set; }
+        public IRequest? LastCommand { get; private set; }
         public bool QuerySent { get; private set; }
-        public IRequest<string> LastQuery { get; private set; }
+        public IRequest<string>? LastQuery { get; private set; }
 
         public Task Send(IRequest request, CancellationToken cancellationToken = default)
         {
