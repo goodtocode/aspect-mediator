@@ -11,10 +11,10 @@ public class RequestDispatcher(IServiceProvider serviceProvider) : IRequestDispa
         var handler = serviceProvider.GetRequiredService(handlerType);
 
         var behaviorType = typeof(IPipelineBehavior<>).MakeGenericType(requestType);
-        var behaviors = serviceProvider.GetServices(behaviorType)?.ToList() ?? [];
+        var behaviors = serviceProvider.GetServices(behaviorType).ToList();
 
         RequestDelegateInvoker handlerDelegate = () =>
-            (Task)handlerType.GetMethod("Handle")!.Invoke(handler, new object[] { request, cancellationToken });
+            (Task)handlerType.GetMethod("Handle")!.Invoke(handler, new object[] { request, cancellationToken })!;
 
         foreach (var behavior in behaviors.AsEnumerable().Reverse())
         {
@@ -22,7 +22,7 @@ public class RequestDispatcher(IServiceProvider serviceProvider) : IRequestDispa
                 throw new InvalidOperationException("Pipeline behavior is null.");
             var next = handlerDelegate;
             handlerDelegate = () =>
-                (Task)behaviorType.GetMethod("Handle")!.Invoke(behavior, new object[] { request, next, cancellationToken });
+                (Task)behaviorType.GetMethod("Handle")!.Invoke(behavior, new object[] { request, next, cancellationToken })!;
         }
 
         await handlerDelegate();
@@ -38,7 +38,7 @@ public class RequestDispatcher(IServiceProvider serviceProvider) : IRequestDispa
         var behaviors = serviceProvider.GetServices(behaviorType)?.ToList() ?? [];
 
         RequestDelegateInvoker<TResponse> handlerDelegate = () =>
-            (Task<TResponse>)handlerType.GetMethod("Handle")!.Invoke(handler, new object[] { request, cancellationToken });
+            (Task<TResponse>)handlerType.GetMethod("Handle")!.Invoke(handler, [request, cancellationToken])!;
 
         foreach (var behavior in behaviors.AsEnumerable().Reverse())
         {
@@ -46,7 +46,7 @@ public class RequestDispatcher(IServiceProvider serviceProvider) : IRequestDispa
                 throw new InvalidOperationException("Pipeline behavior is null.");
             var next = handlerDelegate;
             handlerDelegate = () =>
-                (Task<TResponse>)behaviorType.GetMethod("Handle")!.Invoke(behavior, new object[] { request, next, cancellationToken });
+                (Task<TResponse>)behaviorType.GetMethod("Handle")!.Invoke(behavior, [request, next, cancellationToken])!;
         }
 
         return await handlerDelegate();
