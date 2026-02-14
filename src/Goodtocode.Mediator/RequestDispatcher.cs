@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace Goodtocode.Mediator;
+﻿namespace Goodtocode.Mediator;
 
 public class RequestDispatcher(IServiceProvider serviceProvider) : IRequestDispatcher
 {
