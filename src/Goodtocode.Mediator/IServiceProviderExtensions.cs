@@ -7,7 +7,7 @@ namespace Goodtocode.Mediator;
 /// ServiceProviderServiceExtensions.GetRequiredService/GetServices.
 /// No package reference required; works on netstandard2.1+.
 /// </summary>
-public static class IServiceProviderExtensions
+internal static class IServiceProviderExtensions
 {
 #pragma warning disable CA1510
 #pragma warning disable CA2263
@@ -33,7 +33,7 @@ public static class IServiceProviderExtensions
     /// Get service of type <paramref name="serviceType"/> from the provider
     /// or throw if not registered (matches DI behavior).
     /// </summary>
-    public static object GetRequiredService(this IServiceProvider provider, Type serviceType)
+    internal static object GetRequiredService(this IServiceProvider provider, Type serviceType)
     {
         if (provider == null) throw new ArgumentNullException(nameof(provider));        
         if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
@@ -57,7 +57,7 @@ public static class IServiceProviderExtensions
     /// <summary>
     /// Get service of type T from the provider or throw if not registered.
     /// </summary>
-    public static T GetRequiredService<T>(this IServiceProvider provider)
+    internal static T GetRequiredService<T>(this IServiceProvider provider)
     {
         if (provider == null) throw new ArgumentNullException(nameof(provider));
         return (T)provider.GetRequiredService(typeof(T));
@@ -66,7 +66,7 @@ public static class IServiceProviderExtensions
     /// <summary>
     /// Get all services of type <paramref name="serviceType"/> from the provider.
     /// </summary>
-    public static IEnumerable<object> GetServices(this IServiceProvider provider, Type serviceType)
+    internal static IEnumerable<object> GetServices(this IServiceProvider provider, Type serviceType)
     {
         if (provider == null) throw new ArgumentNullException(nameof(provider));
         if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
@@ -80,7 +80,7 @@ public static class IServiceProviderExtensions
     /// <summary>
     /// Get all services of type T from the provider.
     /// </summary>
-    public static IEnumerable<T> GetServices<T>(this IServiceProvider provider)
+    internal static IEnumerable<T> GetServices<T>(this IServiceProvider provider)
     {
         if (provider == null) throw new ArgumentNullException(nameof(provider));
         return (IEnumerable<T>)provider.GetRequiredService(typeof(IEnumerable<T>));
