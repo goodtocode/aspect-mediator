@@ -90,6 +90,104 @@ Install via NuGet:
 dotnet add package Goodtocode.Mediator
 ```
 
+## Dependency Injection Setup
+
+To quickly register Goodtocode.Mediator handlers and core services, use the provided DI extension method:
+
+```csharp
+services.AddMediatorServices();
+```
+
+This will register all request handlers and core mediator abstractions. 
+
+**Note:** You must still register your application's pipeline behaviors separately, as these are specific to your app and not included in the library (per SRP).
+These pipeline behaiors can be copied from the following sample implementations below:
+[Agent Framework Quick-start w/ Pipeline Behavior classes](https://github.com/goodtocode/agent-framework-quick-start/tree/main/src/Core.Application/Common/Behaviors)
+
+```csharp
+services.AddTransient(typeof(IPipelineBehavior<>), typeof(CustomUnhandledExceptionBehavior<>));
+services.AddTransient(typeof(IPipelineBehavior<>), typeof(CustomValidationBehavior<>));
+services.AddTransient(typeof(IPipelineBehavior<>), typeof(CustomPerformanceBehavior<>));
+
+services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CustomUnhandledExceptionBehavior<,>));
+services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CustomValidationBehavior<,>));
+services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CustomPerformanceBehavior<,>));
+```
+
+## Example Pipeline Behaviors
+
+Below are example implementations of common pipeline behaviors you can use in your application. These are not included in the Goodtocode.Mediator library, but you can copy and adapt them as needed.
+
+```csharp
+// Logging
+public class CustomLoggingBehavior<TRequest>(ILogger<TRequest> logger) : IRequestPreProcessor<TRequest> where TRequest : notnull
+{
+    public async Task Process(TRequest request, CancellationToken cancellationToken)
+    {
+        var requestName = typeof(TRequest).Name;
+        await Task.Run(() => logger.LogRequest(requestName), cancellationToken);
+    }
+}
+
+// Performance
+public class CustomPerformanceBehavior<TRequest, TResponse>(ILogger<TRequest> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+{
+    private readonly Stopwatch _timer = new();
+    private readonly ILogger<TRequest> _logger = logger;
+
+    public async Task<TResponse> Handle(TRequest request, RequestDelegateInvoker<TResponse> nextInvoker, CancellationToken cancellationToken)
+    {
+        _timer.Start();
+        var response = await nextInvoker();
+        _timer.Stop();
+        var elapsedMilliseconds = _timer.ElapsedMilliseconds;
+        if (elapsedMilliseconds > 500)
+        {
+            var requestName = typeof(TRequest).Name;
+            await Task.Run(() => _logger.LogLongRunningRequest(requestName, elapsedMilliseconds), cancellationToken);
+        }
+        return response;
+    }
+}
+
+// Exception Handling
+public class CustomUnhandledExceptionBehavior<TRequest, TResponse>(ILogger<TRequest> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+{
+    private readonly ILogger<TRequest> _logger = logger;
+
+    public async Task<TResponse> Handle(TRequest request, RequestDelegateInvoker<TResponse> nextInvoker, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await nextInvoker();
+        }
+        catch (Exception ex)
+        {
+            var requestName = typeof(TRequest).Name;
+            await Task.Run(() => _logger.LogUnhandledException(ex, requestName), cancellationToken);
+            throw;
+        }
+    }
+}
+
+// Validation
+public class CustomValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+{
+    private readonly IEnumerable<IValidator<TRequest>> _validators = validators;
+
+    public async Task<TResponse> Handle(TRequest request, RequestDelegateInvoker<TResponse> nextInvoker, CancellationToken cancellationToken)
+    {
+        foreach (var validator in _validators)
+        {
+            validator.ValidateAndThrow(request);
+        }
+        return await nextInvoker();
+    }
+}
+```
+
+See [Agent Framework Quick Start](https://github.com/goodtocode/agent-framework-quick-start) for full, working examples of these behaviors.
+
 ## License
 MIT
 
