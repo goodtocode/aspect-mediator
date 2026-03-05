@@ -7,15 +7,17 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddMediatorServices(this IServiceCollection services)
     {
-        var handlerTypes = Assembly.GetExecutingAssembly()
-        .GetTypes()
-        .Where(t => t.GetInterfaces().Any(i =>
-        i.IsGenericType &&
-        (
-        i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>) ||
-        i.GetGenericTypeDefinition() == typeof(IRequestHandler<>)
-        )
-        ));
+        var assembly = Assembly.GetExecutingAssembly();
+
+        var handlerTypes = assembly
+            .GetTypes()
+            .Where(t => t.GetInterfaces().Any(i =>
+                i.IsGenericType &&
+                (
+                    i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>) ||
+                    i.GetGenericTypeDefinition() == typeof(IRequestHandler<>)
+                )
+            ));
 
         foreach (var handlerType in handlerTypes)
         {
