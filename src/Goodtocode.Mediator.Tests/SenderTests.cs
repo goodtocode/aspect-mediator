@@ -12,7 +12,7 @@ public class SenderTests
         var command = new TestCommand();
 
         // Act
-        await sender.Send(command);
+        await sender.Send(command, TestContext.CancellationToken);
 
         // Assert
         Assert.IsTrue(dispatcher.CommandSent);
@@ -28,7 +28,7 @@ public class SenderTests
         var query = new TestQuery();
 
         // Act
-        var result = await sender.Send<string>(query);
+        var result = await sender.Send<string>(query, TestContext.CancellationToken);
 
         // Assert
         Assert.IsTrue(dispatcher.QuerySent);
@@ -62,4 +62,6 @@ public class SenderTests
     // Minimal test request types
     private class TestCommand : IRequest { }
     private class TestQuery : IRequest<string> { }
+
+    public TestContext TestContext { get; set; }
 }
